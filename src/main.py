@@ -2,7 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import HTMLResponse
-
+from dotenv import load_dotenv
+load_dotenv()
 from src.db.database import init_db
 from src.routers import box_router, feedback_router
 from src.routers.auth_router import router as auth_router
