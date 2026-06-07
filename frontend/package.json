@@ -12,6 +12,7 @@
     "build:electron": "VITE_USE_ELECTRON=true tsc && vite build && electron-builder",
     "build": "npm run build:electron",
     "preview": "vite preview",
+    "lint": "eslint \"src/**/*.{js,jsx,ts,tsx}\"",
     "watch:css": "tailwindcss -i ./src/styles/styles.css -o ./src/styles/style.css --watch",
     "tailwind:watch": "tailwindcss -i ./src/styles/styles.css -o ./src/styles/style.css --watch",
     "electron:start": "vite --host",
