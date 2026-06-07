@@ -1,4 +1,4 @@
-import Card from "../../../small/card/card";
+import Card from '../../../small/card/card';
 
 interface Props {
   className: string;

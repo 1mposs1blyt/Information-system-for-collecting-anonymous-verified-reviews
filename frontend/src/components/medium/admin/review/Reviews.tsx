@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import Review from "./review";
-import { API_BASE_URL } from "../../../../utils/api";
+import { useEffect, useState } from 'react';
+import Review from './review';
+import { API_BASE_URL } from '../../../../utils/api';
 
 interface FeedbackData {
   id?: string | number;
@@ -16,34 +16,34 @@ export default function LatestReviewsCard() {
 
   useEffect(() => {
     const fetchFeedbacks = async () => {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem('token');
 
       if (!token) {
-        setError("Токен авторизации не найден");
+        setError('Токен авторизации не найден');
         setIsLoading(false);
         return;
       }
 
       try {
         const response = await fetch(`${API_BASE_URL}/auth/my-feedbacks`, {
-          method: "GET",
+          method: 'GET',
           headers: {
             Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
           },
         });
 
         if (!response.ok) {
           const errorData = await response.json();
-          throw new Error(errorData.detail || "Не удалось загрузить отзывы");
+          throw new Error(errorData.detail || 'Не удалось загрузить отзывы');
         }
 
         const data = await response.json();
         // Записываем массив из поля "feedbacks", как показано в Swagger
         setFeedbacks(data.feedbacks || []);
       } catch (err: any) {
-        console.error("Ошибка при получении отзывов:", err);
-        setError(err.message || "Ошибка соединения с сервером");
+        console.error('Ошибка при получении отзывов:', err);
+        setError(err.message || 'Ошибка соединения с сервером');
       } finally {
         setIsLoading(false);
       }
@@ -64,9 +64,9 @@ export default function LatestReviewsCard() {
         </div>
       ) : (
         feedbacks.map((item, index) => {
-          const reviewText = item.text || "Без текста";
-          const targetUUID = item.box_uuid || "Неизвестный UUID";
-          const timeLabel = item.created_at || "Недавно";
+          const reviewText = item.text || 'Без текста';
+          const targetUUID = item.box_uuid || 'Неизвестный UUID';
+          const timeLabel = item.created_at || 'Недавно';
 
           return (
             <Review

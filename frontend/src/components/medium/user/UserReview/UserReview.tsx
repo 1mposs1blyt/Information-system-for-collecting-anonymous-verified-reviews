@@ -1,8 +1,8 @@
-import { useState, ChangeEvent } from "react";
-import Button from "../../../small/button/button";
-import Card from "../../../small/card/card";
-import Input from "../../../small/input/input";
-import { API_BASE_URL } from "../../../../utils/api";
+import { useState, ChangeEvent } from 'react';
+import Button from '../../../small/button/button';
+import Card from '../../../small/card/card';
+import Input from '../../../small/input/input';
+import { API_BASE_URL } from '../../../../utils/api';
 interface Props {
   className?: string;
   UUIDCODE: string | null;
@@ -11,11 +11,11 @@ interface Props {
 }
 const clearUuidParam = () => {
   const urlParams = new URLSearchParams(window.location.search);
-  urlParams.delete("uuid");
+  urlParams.delete('uuid');
   const newQueryString = urlParams.toString();
   const newRelativePath =
-    window.location.pathname + (newQueryString ? `?${newQueryString}` : "");
-  window.history.replaceState(null, "", newRelativePath);
+    window.location.pathname + (newQueryString ? `?${newQueryString}` : '');
+  window.history.replaceState(null, '', newRelativePath);
 };
 export default function UserReview({
   className,
@@ -23,11 +23,11 @@ export default function UserReview({
   UUIDCODE,
   setUUID,
 }: Props) {
-  const [text, setText] = useState<string>("");
-  const [textTheme, setTextTheme] = useState<string>("");
+  const [text, setText] = useState<string>('');
+  const [textTheme, setTextTheme] = useState<string>('');
   const maxChars = 460;
-  const [error, setError] = useState<string>("");
-  const [success, setSuccess] = useState<string>("");
+  const [error, setError] = useState<string>('');
+  const [success, setSuccess] = useState<string>('');
   const handleTextChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     if (e.target.value.length <= maxChars) {
       setText(e.target.value);
@@ -93,7 +93,7 @@ export default function UserReview({
           className="w-full pl-4 pr-4 pt-3 pb-8 h-32 md:h-40 bg-ui-card text-white placeholder-t-muted border border-ui-border rounded-[10px] resize-none focus:outline-none focus:border-ui-border-active transition-colors text-sm leading-relaxed"
         />
         <span className="absolute bottom-2.5 right-4 text-[11px] font-mono text-t-muted select-none">
-          {text.length.toLocaleString("en-US")} / {maxChars}
+          {text.length.toLocaleString('en-US')} / {maxChars}
         </span>
       </div>
       <div className="mb-3 flex flex-row justify-between items-center mt-5 gap-3">
@@ -101,8 +101,8 @@ export default function UserReview({
           text="Очистить"
           w="fit"
           onClick={() => {
-            setText("");
-            setTextTheme("");
+            setText('');
+            setTextTheme('');
           }}
           className="text-xs md:text-sm px-4"
         />
@@ -117,46 +117,46 @@ export default function UserReview({
             if (res.id != null || undefined) {
               setSuccess(`Ваш отзыв по теме '${textTheme}' отправлен успешно!`);
               setTimeout(() => {
-                setSuccess("");
+                setSuccess('');
                 setUUID(null);
               }, 5000);
             } else {
               setError(res);
               setTimeout(() => {
-                setError("");
+                setError('');
               }, 5000);
             }
           }}
         />
       </div>
-      {error ? <p className="text-t-red text-center">{error}</p> : ""}
-      {success ? <p className="text-t-green text-center">{success}</p> : ""}
+      {error ? <p className="text-t-red text-center">{error}</p> : ''}
+      {success ? <p className="text-t-green text-center">{success}</p> : ''}
     </Card>
   );
 }
 const sendFeedback = async (uuid: string | null, text: string) => {
   try {
-    if (uuid == null) throw new Error("UUID код не заполнен!");
+    if (uuid == null) throw new Error('UUID код не заполнен!');
     const response = await fetch(`${API_BASE_URL}/box/${uuid}/feedback`, {
-      method: "POST",
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
       },
       body: JSON.stringify({
         text: text,
       }),
     });
     if (response.status === 404) {
-      return "Неверный UUID код! Получатель не найден. Попробуйте другой UUID!";
+      return 'Неверный UUID код! Получатель не найден. Попробуйте другой UUID!';
     }
     if (!response.ok) {
       const errorData = await response.json();
-      return errorData.detail || "Ошибка при отправке отзыва";
+      return errorData.detail || 'Ошибка при отправке отзыва';
     }
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Ошибка при отправке запроса:", error);
+    console.error('Ошибка при отправке запроса:', error);
     return error;
   }
 };

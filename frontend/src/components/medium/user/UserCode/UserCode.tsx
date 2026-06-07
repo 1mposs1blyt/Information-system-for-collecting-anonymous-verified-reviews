@@ -1,22 +1,22 @@
-import { useEffect, useState } from "react";
-import Button from "../../../small/button/button";
-import Card from "../../../small/card/card";
-import Input from "../../../small/input/input";
+import { useState } from 'react';
+import Button from '../../../small/button/button';
+import Card from '../../../small/card/card';
+import Input from '../../../small/input/input';
 
 interface Props {
   setUUID: (value: string | null) => void;
   className?: string;
   screen: string;
-  setScreen: (value: "main" | "sender" | "recipient") => void;
+  setScreen: (value: 'main' | 'sender' | 'recipient') => void;
   UUIDCODE: string | null;
 }
 
 export default function UserCode({
-  className = "",
+  className = '',
   setUUID,
   setScreen,
 }: Props) {
-  const [UUID, setUuid] = useState<string>("");
+  const [UUID, setUuid] = useState<string>('');
   return (
     <Card className={`${className}`}>
       <div className="flex flex-row justify-between">
@@ -29,7 +29,7 @@ export default function UserCode({
         <button
           onClick={() => {
             setUUID(null);
-            setScreen("main");
+            setScreen('main');
           }}
           className="p-2 max-h-8 flex items-center border border-ui-border rounded-lg text-xs text-t-muted hover:text-white hover:bg-zinc-900 transition-all cursor-pointer select-none"
           title="Вернуться назад"

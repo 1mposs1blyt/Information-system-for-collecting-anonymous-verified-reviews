@@ -1,16 +1,16 @@
-import { useCallback, useEffect, useState } from "react";
-import Button from "../../small/button/button";
-import Card from "../../small/card/card";
-import Review from "./review/review";
-import UUIDLink from "./uuidLink/uuidLink";
-import ActivityChart from "./activityChart/activityChart";
-import BoxList from "./uuidLink/linkList";
-import LatestReviewsCard from "./review/Reviews";
-import { API_BASE_URL } from "../../../utils/api";
+import { useCallback, useEffect, useState } from 'react';
+import Button from '../../small/button/button';
+import Card from '../../small/card/card';
+import Review from './review/review';
+import UUIDLink from './uuidLink/uuidLink';
+import ActivityChart from './activityChart/activityChart';
+import BoxList from './uuidLink/linkList';
+import LatestReviewsCard from './review/Reviews';
+import { API_BASE_URL } from '../../../utils/api';
 
 interface AdminPanelProps {
   setAuthToken: (value: string | null) => void;
-  setScreen: (value: "main" | "sender" | "recipient") => void;
+  setScreen: (value: 'main' | 'sender' | 'recipient') => void;
 }
 
 export default function AdminPanel({
@@ -18,17 +18,17 @@ export default function AdminPanel({
   setScreen,
 }: AdminPanelProps) {
   const [ActiveTab, setActiveTab] = useState<
-    "statistics" | "links" | "reviews"
-  >("statistics");
+    'statistics' | 'links' | 'reviews'
+  >('statistics');
 
   const [totalReviews, setTotalReviews] = useState<number>(0);
   const [moderatedReviews, setModeratedReviews] = useState<number>(0);
   const [blockedReviews, setBlockedReviews] = useState<number>(0);
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    localStorage.removeItem('token');
     localStorage.clear();
-    setScreen("main");
+    setScreen('main');
     setAuthToken(null);
   };
 
@@ -40,17 +40,17 @@ export default function AdminPanel({
             <Button
               text="Статистика"
               w="full"
-              onClick={() => setActiveTab("statistics")}
+              onClick={() => setActiveTab('statistics')}
             />
             <Button
               text="UUID-ссылки"
               w="full"
-              onClick={() => setActiveTab("links")}
+              onClick={() => setActiveTab('links')}
             />
             <Button
               text="Отзывы"
               w="full"
-              onClick={() => setActiveTab("reviews")}
+              onClick={() => setActiveTab('reviews')}
             />
           </div>
           <div>
@@ -59,7 +59,7 @@ export default function AdminPanel({
         </div>
       </Card>
 
-      {ActiveTab === "statistics" ? (
+      {ActiveTab === 'statistics' ? (
         <Statistics
           totalReviews={totalReviews}
           setTotalReviews={setTotalReviews}
@@ -68,9 +68,9 @@ export default function AdminPanel({
           blockedReviews={blockedReviews}
           setBlockedReviews={setBlockedReviews}
         />
-      ) : ActiveTab === "links" ? (
+      ) : ActiveTab === 'links' ? (
         <Links />
-      ) : ActiveTab === "reviews" ? (
+      ) : ActiveTab === 'reviews' ? (
         <Reviews />
       ) : null}
     </div>
@@ -105,7 +105,7 @@ export const Statistics = ({
 }: StatProps) => {
   const [uuidLinks, setUuidLinks] = useState<number>(0);
   const [clicksCount, setClicksCount] = useState<number>(0);
-  const [lastReviewDate, setLastReviewDate] = useState<string>("Нет отзывов");
+  const [lastReviewDate, setLastReviewDate] = useState<string>('Нет отзывов');
 
   const [totalReviewsPercent] = useState<number>(100);
   const [moderatedReviewsPercent] = useState<number>(100);
@@ -114,21 +114,21 @@ export const Statistics = ({
   const [clicksPercent] = useState<number>(0);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (!token) return;
     const fetchAllData = async () => {
       try {
         const headers = {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         };
 
         const [feedbacksRes, boxesRes] = await Promise.all([
           fetch(`${API_BASE_URL}/auth/my-feedbacks`, {
-            method: "GET",
+            method: 'GET',
             headers,
           }),
-          fetch(`${API_BASE_URL}/auth/my-boxes`, { method: "GET", headers }),
+          fetch(`${API_BASE_URL}/auth/my-boxes`, { method: 'GET', headers }),
         ]);
 
         if (feedbacksRes.ok) {
@@ -143,7 +143,7 @@ export const Statistics = ({
           setBlockedReviews(list.length - approved);
           if (list.length > 0 && list[0].created_at) {
             const rawDate = new Date(list[0].created_at);
-            setLastReviewDate(rawDate.toLocaleDateString("ru-RU"));
+            setLastReviewDate(rawDate.toLocaleDateString('ru-RU'));
           }
         }
         if (boxesRes.ok) {
@@ -157,7 +157,7 @@ export const Statistics = ({
           setClicksCount(totalClicks);
         }
       } catch (error) {
-        console.error("Ошибка при сборке статистики на фронтенде:", error);
+        console.error('Ошибка при сборке статистики на фронтенде:', error);
       }
     };
 
@@ -172,7 +172,7 @@ export const Statistics = ({
             Всего отзывов
           </h2>
           <h3 className="text-2xl font-bold text-t-blue truncate w-full text-center leading-none">
-            {totalReviews.toLocaleString("en-US")}
+            {totalReviews.toLocaleString('en-US')}
           </h3>
           <h2 className="text-[11px] text-center text-t-main truncate w-full">
             +{totalReviewsPercent}% за неделю
@@ -184,7 +184,7 @@ export const Statistics = ({
             Прошли модерацию
           </h2>
           <h3 className="text-2xl font-bold text-t-green truncate w-full text-center leading-none">
-            {moderatedReviews.toLocaleString("en-US")}
+            {moderatedReviews.toLocaleString('en-US')}
           </h3>
           <h2 className="text-[11px] text-center text-t-main truncate w-full">
             +{moderatedReviewsPercent}% от всех
@@ -196,7 +196,7 @@ export const Statistics = ({
             Заблокировано
           </h2>
           <h3 className="text-2xl font-bold text-t-red truncate w-full text-center leading-none">
-            {blockedReviews.toLocaleString("en-US")}
+            {blockedReviews.toLocaleString('en-US')}
           </h3>
           <h2 className="text-[11px] text-center text-t-main truncate w-full">
             +{blockedReviewsPercent}% за неделю
@@ -208,7 +208,7 @@ export const Statistics = ({
             UUID-ссылок
           </h2>
           <h3 className="text-2xl font-bold text-t-purple truncate w-full text-center leading-none">
-            {uuidLinks.toLocaleString("en-US")}
+            {uuidLinks.toLocaleString('en-US')}
           </h3>
           <h2 className="text-[11px] text-center text-t-main truncate w-full">
             +{uuidLinksPercent}% за неделю
@@ -220,7 +220,7 @@ export const Statistics = ({
             Количество переходов
           </h2>
           <h3 className="text-2xl font-bold text-t-yellow truncate w-full text-center leading-none">
-            {clicksCount.toLocaleString("en-US")}
+            {clicksCount.toLocaleString('en-US')}
           </h3>
           <h2 className="text-[11px] text-center text-t-main truncate w-full">
             +{clicksPercent}% за неделю
@@ -268,21 +268,21 @@ export const Statistics = ({
           </h2>
           <div className="flex-1 flex flex-col justify-between border border-ui-border/50 rounded-xl bg-zinc-950/20 min-h-0 overflow-hidden">
             {[
-              { name: "API сервис", status: "Работает", ok: true },
-              { name: "База данных", status: "Работает", ok: true },
-              { name: "Телеграмм бот", status: "Работает", ok: true },
-              { name: "Сайт пользователя", status: "Работает", ok: true },
-              { name: "Сайт получателя", status: "Работает", ok: true },
+              { name: 'API сервис', status: 'Работает', ok: true },
+              { name: 'База данных', status: 'Работает', ok: true },
+              { name: 'Телеграмм бот', status: 'Работает', ok: true },
+              { name: 'Сайт пользователя', status: 'Работает', ok: true },
+              { name: 'Сайт получателя', status: 'Работает', ok: true },
             ].map((service, index, arr) => (
               <div
                 key={service.name}
-                className={`flex flex-row justify-between items-center px-4 text-sm flex-1 ${index !== arr.length - 1 ? "border-b border-ui-border/40" : ""}`}
+                className={`flex flex-row justify-between items-center px-4 text-sm flex-1 ${index !== arr.length - 1 ? 'border-b border-ui-border/40' : ''}`}
               >
                 <span className="text-t-main truncate mr-2">
                   {service.name}
                 </span>
                 <span
-                  className={`font-medium shrink-0 ${service.ok ? "text-t-green" : "text-t-red"}`}
+                  className={`font-medium shrink-0 ${service.ok ? 'text-t-green' : 'text-t-red'}`}
                 >
                   {service.status}
                 </span>
@@ -316,9 +316,9 @@ export const Links = () => {
   const [isCreating, setIsCreating] = useState<boolean>(false);
 
   const fetchBoxes = useCallback(async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (!token) {
-      setError("Токен авторизации не найден");
+      setError('Токен авторизации не найден');
       setIsLoading(false);
       return;
     }
@@ -327,53 +327,53 @@ export const Links = () => {
       setIsLoading(true);
       setError(null);
       const response = await fetch(`${API_BASE_URL}/auth/my-boxes`, {
-        method: "GET",
+        method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || "Не удалось загрузить UUID-ссылки");
+        throw new Error(errorData.detail || 'Не удалось загрузить UUID-ссылки');
       }
 
       const data = await response.json();
       setBoxes(data.boxes || []);
     } catch (err: any) {
-      console.error("Ошибка при получении боксов:", err);
-      setError(err.message || "Ошибка соединения с сервером");
+      console.error('Ошибка при получении боксов:', err);
+      setError(err.message || 'Ошибка соединения с сервером');
     } finally {
       setIsLoading(false);
     }
   }, []);
 
   const handleCreateLink = async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (!token || isCreating) return;
 
     try {
       setIsCreating(true);
       const response = await fetch(`${API_BASE_URL}/box`, {
-        method: "POST",
+        method: 'POST',
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({}),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || "Не удалось создать ссылку");
+        throw new Error(errorData.detail || 'Не удалось создать ссылку');
       }
 
       // После успешного создания принудительно обновляем весь список
       await fetchBoxes();
     } catch (err: any) {
-      console.error("Ошибка создания ссылки:", err);
-      alert(err.message || "Не удалось создать ссылку");
+      console.error('Ошибка создания ссылки:', err);
+      alert(err.message || 'Не удалось создать ссылку');
     } finally {
       setIsCreating(false);
     }
@@ -388,12 +388,12 @@ export const Links = () => {
       <div className="w-full flex flex-row justify-end gap-6 mb-3">
         <Button
           className="pl-16 pr-16"
-          text={isLoading ? "Загрузка..." : "Обновить"}
+          text={isLoading ? 'Загрузка...' : 'Обновить'}
           onClick={fetchBoxes}
         />
         <Button
           className="pl-16 pr-16"
-          text={isCreating ? "Создание..." : "Создать ссылку"}
+          text={isCreating ? 'Создание...' : 'Создать ссылку'}
           onClick={handleCreateLink}
         />
       </div>
@@ -413,10 +413,10 @@ export const Links = () => {
           boxes.map((box, index) => (
             <UUIDLink
               key={box.id || index}
-              clicks={box.clicks !== undefined ? box.clicks.toString() : "0"}
-              UUID={box.uuid || "Неизвестный UUID"}
-              date={box.date || "24.05.2026"}
-              isActive={box.isActive || "Активна"}
+              clicks={box.clicks !== undefined ? box.clicks.toString() : '0'}
+              UUID={box.uuid || 'Неизвестный UUID'}
+              date={box.date || '24.05.2026'}
+              isActive={box.isActive || 'Активна'}
               UUIDScreen
             />
           ))
@@ -438,9 +438,9 @@ export const Reviews = () => {
   const [error, setError] = useState<string | null>(null);
 
   const fetchFeedbacks = useCallback(async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem('token');
     if (!token) {
-      setError("Токен авторизации не найден");
+      setError('Токен авторизации не найден');
       setIsLoading(false);
       return;
     }
@@ -449,23 +449,23 @@ export const Reviews = () => {
       setIsLoading(true);
       setError(null);
       const response = await fetch(`${API_BASE_URL}/auth/my-feedbacks`, {
-        method: "GET",
+        method: 'GET',
         headers: {
           Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json',
         },
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || "Не удалось загрузить отзывы");
+        throw new Error(errorData.detail || 'Не удалось загрузить отзывы');
       }
 
       const data = await response.json();
       setFeedbacks(data.feedbacks || []);
     } catch (err: any) {
-      console.error("Ошибка при получении отзывов:", err);
-      setError(err.message || "Ошибка соединения с сервером");
+      console.error('Ошибка при получении отзывов:', err);
+      setError(err.message || 'Ошибка соединения с сервером');
     } finally {
       setIsLoading(false);
     }
@@ -480,7 +480,7 @@ export const Reviews = () => {
       <div className="w-full flex flex-row justify-end gap-6 mb-3 shrink-0">
         <Button
           className="pl-16 pr-16"
-          text={isLoading ? "Загрузка..." : "Обновить"}
+          text={isLoading ? 'Загрузка...' : 'Обновить'}
           onClick={fetchFeedbacks}
         />
       </div>
@@ -498,9 +498,9 @@ export const Reviews = () => {
           feedbacks.map((item, index) => (
             <div key={item.id || index} className="w-full min-w-0 block">
               <Review
-                title={item.text || "Без текста"}
-                UUID={item.box_uuid || "Неизвестный UUID"}
-                timeAgo={item.created_at || "Недавно"}
+                title={item.text || 'Без текста'}
+                UUID={item.box_uuid || 'Неизвестный UUID'}
+                timeAgo={item.created_at || 'Недавно'}
               />
             </div>
           ))

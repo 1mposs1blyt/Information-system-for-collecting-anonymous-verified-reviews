@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
-import Button from "../small/button/button";
-import Card from "../small/card/card";
-import UserScreen from "./UserScreen";
-import AdminScreen from "./AdminScreen";
+import { useEffect, useState } from 'react';
+import Button from '../small/button/button';
+import Card from '../small/card/card';
+import UserScreen from './UserScreen';
+import AdminScreen from './AdminScreen';
 
 interface User {
   username: string;
@@ -11,8 +11,8 @@ interface User {
 
 interface MainScreenProps {
   UUID: string | null;
-  screen: "main" | "sender" | "recipient";
-  setScreen: (value: "main" | "sender" | "recipient") => void;
+  screen: 'main' | 'sender' | 'recipient';
+  setScreen: (value: 'main' | 'sender' | 'recipient') => void;
   setUUID: (value: string | null) => void;
   user: User | null;
   setAuthToken: (value: string | null) => void;
@@ -33,8 +33,8 @@ export default function MainScreen({
     };
 
     handleResize(); // Проверяем при инициализации
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
   if (UUID != null) {
     return (
@@ -47,7 +47,7 @@ export default function MainScreen({
       />
     );
   }
-  if (screen === "sender") {
+  if (screen === 'sender') {
     return (
       <UserScreen
         screen={screen}
@@ -58,7 +58,7 @@ export default function MainScreen({
       />
     );
   }
-  if (screen === "recipient") {
+  if (screen === 'recipient') {
     // Прокидываем переданные сверху пропсы внутрь AdminScreen
     return (
       <AdminScreen
@@ -92,14 +92,14 @@ export default function MainScreen({
           </p>
           <div className="flex flex-row justify-between items-center gap-4 w-full">
             <Button
-              text={"Войти как отправитель"}
-              onClick={() => setScreen("sender")}
+              text={'Войти как отправитель'}
+              onClick={() => setScreen('sender')}
             ></Button>
             <Button
               disabled={isMobile}
               className="pointer-events-none opacity-40 cursor-not-allowed md:pointer-events-auto md:opacity-100 md:cursor-pointer"
-              text={"Войти как получатель"}
-              onClick={() => setScreen("recipient")}
+              text={'Войти как получатель'}
+              onClick={() => setScreen('recipient')}
             ></Button>
           </div>
         </Card>

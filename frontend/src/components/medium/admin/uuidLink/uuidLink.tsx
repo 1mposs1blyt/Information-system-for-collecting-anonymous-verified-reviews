@@ -1,4 +1,4 @@
-import Card from "../../../small/card/card";
+import Card from '../../../small/card/card';
 
 interface ReviewProps {
   clicks: string;
@@ -29,7 +29,7 @@ export default function UUIDLink({
         <div className="flex flex-row items-center gap-4">
           <div className="flex flex-col justify-between text-t-muted text-end">
             <p
-              className={isActive === "Активна" ? "text-t-green" : "text-t-red"}
+              className={isActive === 'Активна' ? 'text-t-green' : 'text-t-red'}
             >
               {isActive}
             </p>
@@ -60,9 +60,9 @@ export default function UUIDLink({
               <button
                 onClick={() => {}}
                 className="p-2 hover:bg-zinc-800 rounded-lg text-t-muted hover:text-white transition-colors cursor-pointer"
-                title={isActive === "Активна" ? "Остановить" : "Запустить"}
+                title={isActive === 'Активна' ? 'Остановить' : 'Запустить'}
               >
-                {isActive === "Активна" ? (
+                {isActive === 'Активна' ? (
                   <svg
                     xmlns="http://w3.org"
                     width="18"

@@ -1,14 +1,14 @@
-import Cookies from "js-cookie";
+import Cookies from 'js-cookie';
 
 export const authorizedFetch = async (
   url: string,
   options: RequestInit = {}
 ) => {
-  const token = Cookies.get("auth_token");
+  const token = Cookies.get('auth_token');
 
   const headers = {
     ...options.headers,
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
   };
 
@@ -16,4 +16,4 @@ export const authorizedFetch = async (
 };
 
 export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+  import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';

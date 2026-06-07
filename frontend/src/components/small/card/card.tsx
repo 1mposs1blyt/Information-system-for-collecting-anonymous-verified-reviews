@@ -1,10 +1,10 @@
-import { HtmlHTMLAttributes, ReactNode } from "react";
+import { HtmlHTMLAttributes, ReactNode } from 'react';
 interface CardProps extends HtmlHTMLAttributes<HTMLDivElement> {
   children: ReactNode;
 }
 export default function Card({
   children,
-  className = "",
+  className = '',
   ...props
 }: CardProps) {
   return (

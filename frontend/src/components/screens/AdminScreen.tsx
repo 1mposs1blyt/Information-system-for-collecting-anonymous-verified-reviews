@@ -1,6 +1,5 @@
-import { useState } from "react";
-import AdminPanel from "../medium/admin/AdminStats";
-import AuthCard from "../medium/admin/AdminAuth";
+import AdminPanel from '../medium/admin/AdminStats';
+import AuthCard from '../medium/admin/AdminAuth';
 
 interface User {
   username: string;
@@ -10,7 +9,7 @@ interface User {
 interface AdminScreenProps {
   user: User | null;
   screen?: string;
-  setScreen: (value: "main" | "sender" | "recipient") => void;
+  setScreen: (value: 'main' | 'sender' | 'recipient') => void;
   setAuthToken: (value: string | null) => void;
 }
 

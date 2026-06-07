@@ -1,9 +1,9 @@
-import Card from "../../../small/card/card";
+import Card from '../../../small/card/card';
 
 interface Props {
   className?: string;
 }
-export default function UserInfo({ className = "" }: Props) {
+export default function UserInfo({ className = '' }: Props) {
   return (
     <Card className={className}>
       <h1 className="mb-3 leading-relaxed">Как это работает?</h1>

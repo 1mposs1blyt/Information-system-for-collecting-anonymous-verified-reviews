@@ -1,11 +1,10 @@
-import { useState } from "react";
-import UserCode from "../medium/user/UserCode/UserCode";
-import UserInfo from "../medium/user/UserInfo/UserInfo";
-import UserReview from "../medium/user/UserReview/UserReview";
+import UserCode from '../medium/user/UserCode/UserCode';
+import UserInfo from '../medium/user/UserInfo/UserInfo';
+import UserReview from '../medium/user/UserReview/UserReview';
 
 interface UserScreenProps {
   screen: string;
-  setScreen: (value: "main" | "sender" | "recipient") => void;
+  setScreen: (value: 'main' | 'sender' | 'recipient') => void;
   UUIDCODE: string | null;
   UUID: string | null;
   setUUID: (value: string | null) => void;
@@ -42,7 +41,7 @@ export default function UserScreen({
               UUIDCODE={UUIDCODE}
               onBack={() => {
                 setUUID(null);
-                setScreen("sender");
+                setScreen('sender');
               }}
             />
           </div>
