@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session
 
+from logger_config import logger
+
 from src.db.database import get_db
 from src.models.box import Box
 from src.models.feedback import Feedback
@@ -28,28 +30,39 @@ router = APIRouter(prefix="/auth", tags=["auth"])
     "/register", response_model=AuthResponse, status_code=status.HTTP_201_CREATED
 )
 def register(data: RegisterRequest, db: Session = _db_dependency):
+    logger.info(f"Registration attempt for username: {data.username}")
     if data.password != data.confirm_password:
+        logger.warning(f"WARNING: Password mismatch for username: {data.username}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Passwords do not match"
         )
 
     if get_user_by_username(db, data.username) is not None:
+        logger.warning(f"WARNING: Username already exists: {data.username}")
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail="Username already exists"
         )
 
-    user = create_user(db, data.username, data.password)
-    return AuthResponse(username=user.username, token=user.auth_token)
+    try:
+        user = create_user(db, data.username, data.password)
+        logger.info(f"User {data.username} successfully registered")
+        return AuthResponse(username=user.username, token=user.auth_token)
+    except Exception as e:
+        logger.exception("CRITICAL: Database failure during user registration")
+        raise HTTPException(status_code=500, detail="Database error")
 
 
 @router.post("/login", response_model=AuthResponse)
 def login(data: LoginRequest, db: Session = _db_dependency):
+    logger.info(f"Login attempt for username: {data.username}")
     user = authenticate_user(db, data.username, data.password)
     if user is None:
+        logger.warning(f"WARNING: Invalid credentials for username: {data.username}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid username or password",
         )
+    logger.info(f"User {data.username} successfully authenticated")
     return AuthResponse(username=user.username, token=user.auth_token)
 
 
@@ -64,6 +77,7 @@ def me(
 
 def _get_user_or_401(authorization: str | None, db: Session) -> User:
     if not authorization:
+        logger.error("ERROR: Missing Authorization header")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Authorization header missing",
@@ -73,6 +87,7 @@ def _get_user_or_401(authorization: str | None, db: Session) -> User:
         token = token[7:].strip()
     user = get_user_by_token(db, token)
     if user is None:
+        logger.error("ERROR: Provided token is invalid or expired")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
         )
@@ -85,14 +100,19 @@ def my_boxes(
     db: Session = _db_dependency,
 ):
     user = _get_user_or_401(authorization, db)
-    items = [
-        BoxUuidOut(uuid=box.uuid, created_at=box.created_at.isoformat())
-        for box in db.query(Box)
-        .filter(Box.user_id == user.id)
-        .order_by(Box.created_at.desc())
-        .all()
-    ]
-    return UserBoxesResponse(boxes=items)
+    logger.info(f"Fetching boxes for user: {user.username}")
+    try:
+        items = [
+            BoxUuidOut(uuid=box.uuid, created_at=box.created_at.isoformat())
+            for box in db.query(Box)
+            .filter(Box.user_id == user.id)
+            .order_by(Box.created_at.desc())
+            .all()
+        ]
+        return UserBoxesResponse(boxes=items)
+    except Exception as e:
+        logger.exception(f"CRITICAL: Failed to query boxes for user: {user.username}")
+        raise HTTPException(status_code=500, detail="Database error")
 
 
 @router.get("/my-feedbacks", response_model=UserFeedbacksResponse)
@@ -101,37 +121,46 @@ def my_feedbacks(
     db: Session = _db_dependency,
 ):
     user = _get_user_or_401(authorization, db)
-    my_box_ids = [
-        row[0] for row in db.query(Box.id).filter(Box.user_id == user.id).all()
-    ]
-    if not my_box_ids:
-        return UserFeedbacksResponse(feedbacks=[])
-
-    feedbacks = []
-    for fb in (
-        db.query(Feedback)
-        .filter(Feedback.box_id.in_(my_box_ids))
-        .order_by(Feedback.created_at.desc())
-        .all()
-    ):
-        box = db.query(Box).filter(Box.id == fb.box_id).first()
-        if not box:
-            continue
-        replies = [
-            BoxReplyOut(
-                id=reply.id, text=reply.text, created_at=reply.created_at.isoformat()
-            )
-            for reply in fb.replies
+    logger.info(f"Fetching feedbacks for user: {user.username}")
+    try:
+        my_box_ids = [
+            row[0] for row in db.query(Box.id).filter(Box.user_id == user.id).all()
         ]
-        feedbacks.append(
-            FeedbackShortOut(
-                id=fb.id,
-                box_uuid=box.uuid,
-                text=fb.text,
-                status=fb.status,
-                moderation_notes=fb.moderation_notes,
-                created_at=fb.created_at.isoformat(),
-                replies=replies,
+        if not my_box_ids:
+            return UserFeedbacksResponse(feedbacks=[])
+
+        feedbacks = []
+        for fb in (
+            db.query(Feedback)
+            .filter(Feedback.box_id.in_(my_box_ids))
+            .order_by(Feedback.created_at.desc())
+            .all()
+        ):
+            box = db.query(Box).filter(Box.id == fb.box_id).first()
+            if not box:
+                continue
+            replies = [
+                BoxReplyOut(
+                    id=reply.id,
+                    text=reply.text,
+                    created_at=reply.created_at.isoformat(),
+                )
+                for reply in fb.replies
+            ]
+            feedbacks.append(
+                FeedbackShortOut(
+                    id=fb.id,
+                    box_uuid=box.uuid,
+                    text=fb.text,
+                    status=fb.status,
+                    moderation_notes=fb.moderation_notes,
+                    created_at=fb.created_at.isoformat(),
+                    replies=replies,
+                )
             )
+        return UserFeedbacksResponse(feedbacks=feedbacks)
+    except Exception as e:
+        logger.exception(
+            f"CRITICAL: Failed to query feedbacks for user: {user.username}"
         )
-    return UserFeedbacksResponse(feedbacks=feedbacks)
+        raise HTTPException(status_code=500, detail="Database error")

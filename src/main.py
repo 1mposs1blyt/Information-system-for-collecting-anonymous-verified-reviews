@@ -1,14 +1,20 @@
+import sys
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 from fastapi.responses import HTMLResponse
 from dotenv import load_dotenv
+
 load_dotenv()
 from src.db.database import init_db
 from src.routers import box_router, feedback_router
 from src.routers.auth_router import router as auth_router
+from logger_config import logger 
 
 app = FastAPI()
+
+logger.info("Backend statred successfully!")
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -53,6 +59,7 @@ app.openapi = custom_openapi
 
 @app.get("/", response_class=HTMLResponse)
 def root():
+    logger.info("Main backend route!")
     return HTMLResponse("""
         <html>
             <head>
@@ -73,4 +80,5 @@ def root():
 
 @app.get("/health")
 def health():
+    logger.info("Health backend route!")
     return {"status": "ok"}

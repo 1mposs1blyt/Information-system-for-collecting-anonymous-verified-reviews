@@ -13,6 +13,7 @@ from src.schemas.feedback import FeedbackCreate, FeedbackOut
 from src.schemas.reply import ReplyCreate, ReplyOut
 from src.services.feedback_service import create_feedback
 from src.services.reply_service import create_reply
+from logger_config import logger
 
 _db_dependency = Depends(get_db)
 
@@ -20,28 +21,42 @@ router = APIRouter()
 
 
 @router.post(
-    "/box/{uuid}/feedback", response_model=FeedbackOut, status_code=status.HTTP_200_OK
+    "/box/{uuid}/feedback",
+    response_model=FeedbackOut,
+    status_code=status.HTTP_201_CREATED,
 )
-def send_feedback(
-    uuid: str, feedback: FeedbackCreate, request: Request, db: Session = _db_dependency
+async def create_feedback(
+    uuid: str,
+    feedback_in: FeedbackIn,
+    request: Request,
+    db: AsyncSession = Depends(get_db),
 ):
-    check_rate(request.client.host, "POST:/box/{uuid}/feedback")
-    box = db.query(Box).filter(Box.uuid == uuid).first()
-    if box is None:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="Box not found"
-        )
+    logger.info(f"Получен анонимный отзыв для ящика {uuid} с IP: {request.client.host}")
 
-    created = create_feedback(db, box.id, feedback.text)
-    # Normalize response types to match Pydantic schema (created_at is a string in API contract).
-    return FeedbackOut(
-        id=created.id,
-        text=created.text,
-        status=created.status,
-        moderation_notes=created.moderation_notes,
-        created_at=created.created_at.isoformat(),
-        replies=[],
-    )
+    try:
+        box = await get_box_by_uuid(db, uuid)
+        if not box:
+            logger.warning(
+                f"WARNING: Попытка отправить отзыв в несуществующий ящик: {uuid}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Box not found"
+            )
+
+        new_feedback = await create_new_feedback(db, box.id, feedback_in.text)
+
+        logger.info(f"Отзыв для ящика {uuid} успешно сохранен в базу данных PostgreSQL")
+        return new_feedback
+
+    except HTTPException as http_err:
+        raise http_err
+    except Exception as e:
+        logger.exception(
+            f"CRITICAL: Непредвиденная ошибка СУБД при сохранении отзыва для ящика {uuid}!"
+        )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Database error"
+        )
 
 
 @router.get("/box/{uuid}", response_model=BoxFeedbacksResponse)

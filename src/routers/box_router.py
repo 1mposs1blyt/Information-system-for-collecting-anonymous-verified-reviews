@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
+from logger_config import logger
+
 from src.db.database import get_db
 from src.middlewares.rate_limit import check_rate
 from src.schemas.box import BoxCreateResponse
@@ -18,6 +20,7 @@ def create_box_endpoint(
     authorization: str = Header(None, alias="Authorization"),
     db: Session = _db_dependency,
 ):
+    logger.info(f"Box creation request from IP: {request.client.host}")
     check_rate(request.client.host, "POST:/box")
     user_id = None
     if authorization:
@@ -27,10 +30,27 @@ def create_box_endpoint(
         user = get_user_by_token(db, token)
         if user:
             user_id = user.id
-    box = create_box(db, user_id=user_id)
-    if not box:
+            logger.info(f"Box will be linked to authenticated user: {user.username}")
+        else:
+            logger.warning(
+                "WARNING: Invalid authorization token provided during box creation"
+            )
+
+    try:
+        box = create_box(db, user_id=user_id)
+        if not box:
+            logger.error("ERROR: Service returned empty box object")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail="Unable to create box",
+            )
+        logger.info(f"Box successfully created with UUID: {box.uuid}")
+        return box
+    except HTTPException as http_err:
+        raise http_err
+    except Exception as e:
+        logger.exception("CRITICAL: Unhandled exception during box creation operation")
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Unable to create box",
         )
-    return box
