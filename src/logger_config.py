@@ -16,5 +16,9 @@ logger.add(
     level="INFO",
     rotation="10 MB",
     retention=5,
-    compression="zip"
+    compression="zip",
 )
+
+
+
+
