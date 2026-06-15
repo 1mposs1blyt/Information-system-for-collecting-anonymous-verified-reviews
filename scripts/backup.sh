@@ -5,11 +5,16 @@ if [ -f .env ]; then
     export $(cat .env | grep -v '#' | xargs)
 fi
 
-# Если переменные для PostgreSQL не заданы, ставим стандартные значения по умолчанию
+# Если переменные для PostgreSQL не заданы в .env, ставим стандартные
 DB_USER=${DB_USER:-postgres}
 DB_NAME=${DB_NAME:-postgres}
-DB_HOST=${DB_HOST:-localhost}
+DB_HOST=${DB_HOST:-127.0.0.1}
 DB_PORT=${DB_PORT:-5432}
+
+# Передаем пароль из .env напрямую в pg_dump, чтобы он не запрашивал его вручную
+if [ ! -z "$DB_PASSWORD" ]; then
+    export PGPASSWORD=$DB_PASSWORD
+fi
 
 # Генерируем уникальное имя файла с текущей датой и временем
 TIMESTAMP=$(date +"%Y_%m_%d_%H%M%S")
@@ -30,11 +35,14 @@ else
     exit 1
 fi
 
-# 2. Упаковываем дамп базы данных в ZIP архив для экономии места
+# 2. Упаковываем дамп базы данных в ZIP архив
 echo "Архивация данных..."
 zip -r "$FINAL_ZIP" "$SQL_BACKUP"
 
 # Удаляем промежуточный .sql файл, оставляя только готовый архив
 rm "$SQL_BACKUP"
+
+# Сбрасываем пароль из памяти в целях безопасности
+unset PGPASSWORD
 
 echo "=== БЭКАП УСПЕШНО СОЗДАН: $FINAL_ZIP ==="
