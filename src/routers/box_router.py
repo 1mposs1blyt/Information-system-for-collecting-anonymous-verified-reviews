@@ -1,7 +1,8 @@
+from __future__ import annotations
 from fastapi import APIRouter, Depends, Header, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
-from logger_config import logger
+from src.logger_config import logger
 
 from src.db.database import get_db
 from src.middlewares.rate_limit import check_rate

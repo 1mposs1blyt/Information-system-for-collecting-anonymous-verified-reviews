@@ -1,4 +1,6 @@
+from __future__ import annotations
 import sys
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
@@ -9,12 +11,27 @@ load_dotenv()
 from src.db.database import init_db
 from src.routers import box_router, feedback_router
 from src.routers.auth_router import router as auth_router
-from logger_config import logger 
+from src.logger_config import logger
 
-app = FastAPI()
+
+# Современный способ обработки запуска для исправления схем Pydantic на Python 3.14
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    for route in app.routes:
+        if hasattr(route, "dependant") and route.dependant.call:
+            for param in route.dependant.body_params:
+                if hasattr(param.type_, "model_rebuild"):
+                    try:
+                        param.type_.model_rebuild()
+                    except Exception:
+                        pass
+    yield
+
+
+# Передаем исправленный жизненный цикл в приложение
+app = FastAPI(lifespan=lifespan)
 
 logger.info("Backend statred successfully!")
-
 
 app.add_middleware(
     CORSMiddleware,
